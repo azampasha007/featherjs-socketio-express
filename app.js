@@ -2,6 +2,8 @@ const feathers = require('@feathersjs/feathers');
 const express = require('@feathersjs/express');
 const socketio = require('@feathersjs/socketio');
 const moment = require('moment');
+// const cors = require('cors');
+
 
 // Idea Service
 class IdeaService {
@@ -33,6 +35,9 @@ const app = express(feathers());
 
 // Parse JSON
 app.use(express.json());
+
+// app.use(cors());
+
 // Config Socket.io realtime APIs
 app.configure(socketio());
 // Enable REST services
@@ -45,6 +50,20 @@ app.on('connection', conn => app.channel('stream').join(conn));
 // Publish events to stream
 app.publish(data => app.channel('stream'));
 
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  // credentials: true, // If you need to send cookies with your requests
+};
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', corsOptions.origin);
+  res.setHeader('Access-Control-Allow-Methods', corsOptions.methods);
+  // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  // res.setHeader('Access-Control-Allow-Credentials', corsOptions.credentials);
+  next();
+});
+
 const PORT = process.env.PORT || 3030;
 
 app
@@ -53,8 +72,8 @@ app
     console.log(`Realtime server running on port ${PORT}`)
   );
 
-app.service('ideas').create({
-  text: 'Build a cool app',
-  tech: 'Node.js',
-  viewer: 'John Doe'
-});
+// app.service('ideas').create({
+//   text: 'Build a cool app',
+//   tech: 'Node.js',
+//   viewer: 'John Doe'
+// });
